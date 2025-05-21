@@ -1,6 +1,7 @@
 from src.API_interaction import HHruInteraction
 from src.file_worker import JsonFileWorker
 from src.vacancy import VacancyHH
+from src.utils import filter_info
 
 
 def main():
@@ -14,11 +15,10 @@ def main():
             target = None
 
         hh_1 = HHruInteraction()
-        hh_1.vacancies_json = hh_1.connect_API(target)
+        hh_1.vacancies = hh_1._get_data(target)
 
         print("Идет поиск подходящих вакансий...")
 
-        vacancies_list = hh_1.get_data()
         print("Поиск завершен")
 
         json_save_check = bool(int(input("""Хотите сохранить список вакансий  в файл?
@@ -28,7 +28,7 @@ def main():
         => 
         """)))
         if json_save_check:
-            JsonFileWorker.write_file(vacancies_list, "vacancies.json")
+            JsonFileWorker.write_file(hh_1.vacancies, "vacancies.json")
 
 
         top_check = bool(int(input("""Хотите просмотреть ТОП вакансий  по заработной плате?
@@ -39,7 +39,7 @@ def main():
         """)))
         if top_check:
             top_n = int(input("Какое количество вакансий включить в ТОП? => "))
-            top_vacancies = VacancyHH.make_top_n(vacancies_list, top_n)
+            top_vacancies = VacancyHH.make_top_n(hh_1.vacancies, top_n)
             for vacancy in top_vacancies:
                 print(vacancy)
 
@@ -53,7 +53,7 @@ def main():
             keyword = input("Введите слово для поиска => ")
             # например: разработчик
             vacancies = JsonFileWorker.load_from_file("vacancies.json")
-            result = JsonFileWorker.filter_info(vacancies, keyword)
+            result = filter_info(vacancies, keyword)
             for item in result:
                 print(item)
 
