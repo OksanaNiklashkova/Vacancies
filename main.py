@@ -55,21 +55,15 @@ def main() -> None:
                 """Вы можете использовать имя файла по умолчанию или задать новое. 
 Введите имя файла или нажмите [Enter] для записи в файл по умолчанию => """
             )
-            if len(filename_check) != 0:
-                if not filename_check.endswith(".json"):
-                    filename = filename_check.lower().strip() + ".json"
-                else:
-                    filename = filename_check
-            else:
-                filename = "vacancies.json"
+            filename = filename_check if filename_check else "vacancies.json"
             json_file = JsonFileWorker(filename)
             # проверяем, есть ли записи в файле
-            vacancies_list = json_file.load_from_file(filename)
+            vacancies_list = json_file.load_from_file(json_file.filename)
             if len(vacancies_list) != 0:
                 # если в файле есть записи, проверяем новые данные на дубли с содержимым файла
-                hh_1.vacancies = json_file.complete_data(hh_1.vacancies, filename)
+                hh_1.vacancies = json_file.complete_data(hh_1.vacancies, json_file.filename)
             # записываем данные в файл
-            JsonFileWorker.write_file(hh_1.vacancies, filename)
+            JsonFileWorker.write_file(hh_1.vacancies, json_file.filename)
 
             filter_check = bool(
                 int(

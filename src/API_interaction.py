@@ -10,12 +10,12 @@ class BaseInteraction(ABC):
     """абстрактный класс для работы с API"""
 
     @abstractmethod
-    def _connect_api(self) -> list:
+    def _connect_api(self) -> list:  # pragma: no cover
         """Метод для подключения к API"""
         pass
 
     @abstractmethod
-    def _get_data(self) -> list:
+    def _get_data(self) -> list:  # pragma: no cover
         """Метод для получения ответа на запрос с API"""
         pass
 
@@ -71,7 +71,8 @@ class HHruInteraction(BaseInteraction):
             except KeyError:
                 requirements = ""
             if requirements and len(requirements) != 0:
-                requirements = re.sub(r"<[^>]+>", "", requirements)  # Удаляем все HTML-теги
+                # Удаляем все HTML-теги
+                requirements = re.sub(r"<[^>]+>", "", requirements)
 
             vacancy = {
                 "name": item.get("name", "не указано"),

@@ -9,19 +9,19 @@ class FileWorker(ABC):
 
     @classmethod
     @abstractmethod
-    def write_file(cls, vacancies: list, filename: str) -> None:
+    def write_file(cls, vacancies: list, filename: str) -> None:  # pragma: no cover
         """метод для записи в файл json"""
         pass
 
     @classmethod
     @abstractmethod
-    def load_from_file(cls, filename: str) -> list:
+    def load_from_file(cls, filename: str) -> list:  # pragma: no cover
         """метод для чтения записей из файла json"""
         pass
 
     @classmethod
     @abstractmethod
-    def complete_data(cls, vacancies: list, filename: str) -> list:
+    def complete_data(cls, vacancies: list, filename: str) -> list:  # pragma: no cover
         """метод для добавления записей в файл json"""
         pass
 
@@ -29,9 +29,11 @@ class FileWorker(ABC):
 class JsonFileWorker(FileWorker):
     """Класс для работы с файлами Json"""
 
-    def __init__(self, __filename: str) -> None:
+    __filename: str
+
+    def __init__(self, filename: str) -> None:
         """инициализатор экземпляров класса"""
-        self.__filename = ""
+        self.filename = filename
 
     @property
     def filename(self) -> str:
@@ -41,11 +43,16 @@ class JsonFileWorker(FileWorker):
     @filename.setter
     def filename(self, new_value: str) -> None:
         """сеттер для приватного атрибута - имя файла"""
+        if not new_value.endswith(".json"):
+            new_value = new_value.lower().strip() + ".json"
+
         self.__filename = new_value
 
     @staticmethod
     def _make_file_path(filename: str) -> str:
         """метод для получения пути к файлу json"""
+        if os.path.isabs(filename):
+            return filename
         dir_path = os.path.dirname(os.path.abspath(__file__))
         data_dir_path = os.path.join(dir_path, "..", "data")
         os.makedirs(data_dir_path, exist_ok=True)
@@ -55,7 +62,10 @@ class JsonFileWorker(FileWorker):
     @classmethod
     def write_file(cls, vacancies: list, filename: str) -> None:
         """метод для записи в файл json"""
-        file_path = cls._make_file_path(filename)
+        if os.path.isabs(filename):  # Если передан абсолютный путь
+            file_path = filename
+        else:
+            file_path = cls._make_file_path(filename)  # Если передан относительный путь
         with open(file_path, "w", encoding="utf-8") as file:
             # noinspection PyTypeChecker
             json.dump(vacancies, file, indent=2, ensure_ascii=False)

@@ -13,7 +13,7 @@ def filter_info(vacancies: list, keyword: str) -> list | None:
                 ):
                     vacancy = VacancyHH.make_vacancy(v)
                     result.append(str(vacancy))
-            except AttributeError:
+            except (TypeError, ValueError, KeyError, AttributeError):
                 continue
         return result
     else:

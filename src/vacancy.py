@@ -12,13 +12,13 @@ class Vacancy(ABC):
         url: str,
         salary: Optional[Union[int, float, Dict[str, Optional[Union[int, float]]]]],
         requirements: Optional[str],
-    ) -> None:
+    ) -> None:  # pragma: no cover
         """Инициализатор для объектов класса Vacancy"""
         pass
 
     @classmethod
     @abstractmethod
-    def make_vacancy(cls, item: Dict[str, Any]) -> "Vacancy":
+    def make_vacancy(cls, item: Dict[str, Any]) -> "Vacancy":  # pragma: no cover
         """Создание экземпляров класса Vacancy из словарей"""
         pass
 
