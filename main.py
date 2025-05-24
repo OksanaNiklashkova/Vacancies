@@ -5,6 +5,7 @@ from src.vacancy import VacancyHH
 
 
 def main() -> None:
+    """Реализация взаимодействия с пользователем"""
     print("Добро пожаловать в приложение 'ВАКАНСИИ ДЛЯ ВАС'!")
 
     target = ""
@@ -55,7 +56,7 @@ def main() -> None:
                 """Вы можете использовать имя файла по умолчанию или задать новое. 
 Введите имя файла или нажмите [Enter] для записи в файл по умолчанию => """
             )
-            filename = filename_check if filename_check else "vacancies.json"
+            filename = filename_check if len(filename_check) != 0 else "vacancies.json"
             json_file = JsonFileWorker(filename)
             # проверяем, есть ли записи в файле
             vacancies_list = json_file.load_from_file(json_file.filename)
@@ -79,7 +80,7 @@ def main() -> None:
             if filter_check:
                 keyword = input("Введите слово для поиска => ")
                 # например: разработчик
-                vacancies = JsonFileWorker.load_from_file(filename)
+                vacancies = JsonFileWorker.load_from_file(json_file.filename)
                 # вызов вспомогательной функции для фильтрации данных
                 result = filter_info(vacancies, keyword)
                 if result:

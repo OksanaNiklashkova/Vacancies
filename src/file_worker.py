@@ -66,7 +66,7 @@ class JsonFileWorker(FileWorker):
             file_path = filename
         else:
             file_path = cls._make_file_path(filename)  # Если передан относительный путь
-        with open(file_path, "w", encoding="utf-8") as file:
+        with open(file_path, "w", buffering=1, encoding="utf-8") as file:
             # noinspection PyTypeChecker
             json.dump(vacancies, file, indent=2, ensure_ascii=False)
 
