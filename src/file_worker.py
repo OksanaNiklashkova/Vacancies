@@ -1,27 +1,58 @@
 import json
 import os.path
 from abc import ABC, abstractmethod
-
-from src.API_interaction import HHruInteraction
-from src.vacancy import VacancyHH
+from typing import Any
 
 
 class FileWorker(ABC):
+    """Абстрактный класс для работы с файлами"""
 
+    @classmethod
     @abstractmethod
-    def write_file(self, vacancies, filename):
+    def write_file(cls, vacancies: list, filename: str) -> None:  # pragma: no cover
+        """метод для записи в файл json"""
         pass
 
+    @classmethod
     @abstractmethod
-    def load_from_file(self, filename):
+    def load_from_file(cls, filename: str) -> list:  # pragma: no cover
+        """метод для чтения записей из файла json"""
+        pass
+
+    @classmethod
+    @abstractmethod
+    def complete_data(cls, vacancies: list, filename: str) -> list:  # pragma: no cover
+        """метод для добавления записей в файл json"""
         pass
 
 
 class JsonFileWorker(FileWorker):
+    """Класс для работы с файлами Json"""
+
+    __filename: str
+
+    def __init__(self, filename: str) -> None:
+        """инициализатор экземпляров класса"""
+        self.filename = filename
+
+    @property
+    def filename(self) -> str:
+        """геттер для приватного атрибута - имя файла"""
+        return self.__filename
+
+    @filename.setter
+    def filename(self, new_value: str) -> None:
+        """сеттер для приватного атрибута - имя файла"""
+        if not new_value.endswith(".json"):
+            new_value = new_value.lower().strip() + ".json"
+
+        self.__filename = new_value
 
     @staticmethod
-    def _make_file_path(filename):
+    def _make_file_path(filename: str) -> str:
         """метод для получения пути к файлу json"""
+        if os.path.isabs(filename):
+            return filename
         dir_path = os.path.dirname(os.path.abspath(__file__))
         data_dir_path = os.path.join(dir_path, "..", "data")
         os.makedirs(data_dir_path, exist_ok=True)
@@ -29,19 +60,22 @@ class JsonFileWorker(FileWorker):
         return file_path
 
     @classmethod
-    def write_file(cls, vacancies, filename):
+    def write_file(cls, vacancies: list, filename: str) -> None:
         """метод для записи в файл json"""
-        file_path = cls._make_file_path(filename)
-        with open(file_path, 'w', encoding='utf-8') as file:
+        if os.path.isabs(filename):  # Если передан абсолютный путь
+            file_path = filename
+        else:
+            file_path = cls._make_file_path(filename)  # Если передан относительный путь
+        with open(file_path, "w", buffering=1, encoding="utf-8") as file:
             # noinspection PyTypeChecker
             json.dump(vacancies, file, indent=2, ensure_ascii=False)
 
     @classmethod
-    def load_from_file(cls, filename):
+    def load_from_file(cls, filename: str) -> Any:
         """метод для чтения записей из файла json"""
         file_path = cls._make_file_path(filename)
         try:
-            with open(file_path, 'r', encoding='utf-8') as file:
+            with open(file_path, "r", encoding="utf-8") as file:
                 vacancies = json.load(file)
                 return vacancies
         except FileNotFoundError:
@@ -49,31 +83,16 @@ class JsonFileWorker(FileWorker):
         except json.JSONDecodeError:
             return []
 
-    @staticmethod
-    def filter_info(vacancies, keyword):
-        if len(vacancies) != 0:
-            result = []
-            for v in vacancies:
-                try:
-                    if keyword.lower() in v.get("name", "").lower() or \
-                            keyword.lower() in v.get("requirements", "").lower():
-                        vacancy = VacancyHH.make_vacancy(v)
-                        result.append(str(vacancy))
-                except AttributeError:
-                    continue
-            return result
-        else:
-            print("Файл со списком вакансий пуст либо не найден. Попробуйте обновить данные.")
+    @classmethod
+    def complete_data(cls, new_vacancies: list, filename: str) -> Any:
+        """метод для добавления записей в файл json"""
+        vacancies_data = JsonFileWorker.load_from_file(filename)
 
-    
-if __name__ == "__main__":
-    target = 'Java'
-    hh_1 = HHruInteraction()
-    hh_1.vacancies_json = hh_1.connect_API(target)  # Сохраняем результат в vacancies_json
-    vacancies_list = hh_1.get_data()
-
-    JsonFileWorker.write_file(vacancies_list, "vacancies.json")
-    vacancies = JsonFileWorker.load_from_file("vacancies.json")
-    result = JsonFileWorker.filter_info(vacancies, "разработчик")
-    for item in result:
-        print(item)
+        for item in vacancies_data:
+            # удаляем дубли, если они есть
+            for i, v in enumerate(new_vacancies):
+                if item.get("name", "") == v.get("name", ""):
+                    new_vacancies.pop(i)
+                else:
+                    vacancies_data.append(v)
+        return vacancies_data
