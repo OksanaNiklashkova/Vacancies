@@ -26,7 +26,7 @@ def test_connect_api1(mock_get: Any, hh_ru1: HHruInteraction) -> None:
 
     result = hh_ru1._connect_api()
 
-    assert result == [{"id": 1, "name": "Python Dev"}]
+    assert result == {'items': [{'id': 1, 'name': 'Python Dev'}]}
     mock_get.assert_called_once()
 
 
@@ -72,7 +72,7 @@ def test_connect_api4(mock_get: Any, hh_ru1: HHruInteraction, capsys: pytest.Cap
 
 def test_get_data(hh_ru1: HHruInteraction, vacancies_test: list, target: str = "разработчик") -> None:
     """тест обработки данных, полученных с API"""
-    with patch("src.API_interaction.HHruInteraction._connect_api", return_value=vacancies_test):
+    with patch("src.API_interaction.HHruInteraction._connect_api", return_value={"items": vacancies_test}):
         result = hh_ru1._get_data(target)
         assert result[0]["name"] == "Pазработчик, QA"
 

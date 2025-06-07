@@ -7,14 +7,26 @@ from src.vacancy import VacancyHH
 def main() -> None:
     """Реализация взаимодействия с пользователем"""
     print("Добро пожаловать в приложение 'ВАКАНСИИ ДЛЯ ВАС'!")
-
+    hh_1 = HHruInteraction()
     target = ""
     while len(target) == 0:
         target = input("Введите слово для поиска: ")
         # например: Python
-        hh_1 = HHruInteraction()
+
+
+        top_employers_check = bool(int(input("""Предлагаем провести поиск среди вакансий крупнейших работодателей РФ!
+        Согласны?
+        Нажмите
+        1 - если да
+        0 - если нет
+        => """)))
+        if top_employers_check:
+            employers_data = hh_1._get_employers_id()
+        else:
+            employers_data = []
+
         # обработка ответа от API
-        hh_1.vacancies = hh_1._get_data(target)
+        hh_1.vacancies = hh_1._get_data(employers_data, target)
 
         print("Идет поиск подходящих вакансий...")
 
