@@ -1,21 +1,17 @@
-from src.vacancy import VacancyHH
+from typing import Any, Dict, List, Optional, Union
 
+def get_salary_value(salary: Optional[Union[int, float, Dict[str, Optional[Union[int, float]]]]]) -> Union[int, float]:
+    """Метод для валидации зарплаты"""
+    if salary is None:
+        return 0
+    elif isinstance(salary, dict):
+        if salary.get("from") is not None:
+            return salary["from"] or 0
+        elif salary.get("to") is not None:
+            return salary["to"] or 0
+        else:
+            return 0
+    elif isinstance(salary, (int, float)):
+        return salary
+    return 0
 
-def filter_info(vacancies: list, keyword: str) -> list | None:
-    """функция фильтрует список вакансий по заданному слову"""
-    if len(vacancies) != 0:
-        result = []
-        for v in vacancies:
-            try:
-                if (
-                    keyword.lower() in v.get("name", "").lower()
-                    or keyword.lower() in v.get("requirements", "").lower()
-                ):
-                    vacancy = VacancyHH.make_vacancy(v)
-                    result.append(str(vacancy))
-            except (TypeError, ValueError, KeyError, AttributeError):
-                continue
-        return result
-    else:
-        print("Файл со списком вакансий пуст либо не найден. Попробуйте обновить данные.")
-        return []

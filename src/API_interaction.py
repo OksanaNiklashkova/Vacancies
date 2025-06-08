@@ -4,6 +4,7 @@ from typing import Any
 
 import requests  # type: ignore
 from requests import RequestException
+from src.utils import get_salary_value
 
 
 
@@ -57,7 +58,9 @@ class HHruInteraction(BaseInteraction):
         for i in employers_list:
             self.__params = {"text": i, "page": 0, "per_page": 1, "locale": "RU"}
             response = self._connect_api()
-            employers_data.append({response["items"][0].get("name", '0'): response["items"][0].get("id", '0')})
+            employers_data.append({"name": response["items"][0].get("name", '0'),
+                                   "employer_id": response["items"][0].get("id", '0'),
+                                   "url": response["items"][0].get("url", '0')})
         return employers_data
 
 
@@ -65,11 +68,12 @@ class HHruInteraction(BaseInteraction):
         """Метод для получения ответа на запрос с API"""
         self.__url = "https://api.hh.ru/vacancies"
         get_data_vacancy = []
+
         for i in employers_data:
-            for k, v in i.items():
-                self.__params = {"text": target.lower(), "employer_id": v, "page": 0, "per_page": 100}
-                result = self._connect_api()
-                get_data_vacancy.append({k: result.get("items", [])})
+            self.__params = {"text": target.lower(), "employer_id": i["employer_id"], "page": 0, "per_page": 100}
+            result = self._connect_api()
+
+            get_data_vacancy.append({i["name"]: result.get("items", [])})
         return get_data_vacancy
 
     @property
@@ -87,9 +91,12 @@ class HHruInteraction(BaseInteraction):
             for items in employer_data.values():
                 if not isinstance(items, list):  # Если items не список, пропускаем
                     continue
+
                 for item in items:
                     if isinstance(item["salary"], dict) and item["salary"].get("currency") != "RUR":
                         continue
+                    else:
+                        salary = get_salary_value(item["salary"])
                     try:
                         requirements = item["snippet"]["requirement"]
                     except KeyError:
@@ -99,11 +106,14 @@ class HHruInteraction(BaseInteraction):
                         requirements = re.sub(r"<[^>]+>", "", requirements)
 
                     vacancy = {
+                        "id": item.get("id"),
                         "name": item.get("name", "не указано"),
                         "url": item.get("alternate_url", "hh.ru"),
-                        "salary": item.get("salary"),
+                        "salary": salary,
                         "requirements": requirements,
+                        "employer_id": item["employer"].get("id")
                     }
+
                     vacancies.append(vacancy)
         self.__vacancies = vacancies
 
