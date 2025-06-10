@@ -4,8 +4,8 @@ from typing import Any
 
 import requests  # type: ignore
 from requests import RequestException
-from src.utils import get_salary_value
 
+from src.utils import get_salary_value
 
 
 class BaseInteraction(ABC):
@@ -17,7 +17,7 @@ class BaseInteraction(ABC):
         pass
 
     @abstractmethod
-    def _get_data(self,employers_data: list, target: str) -> list:  # pragma: no cover
+    def _get_data(self, employers_data: list, target: str) -> list:  # pragma: no cover
         """Метод для получения ответа на запрос с API"""
         pass
 
@@ -47,22 +47,34 @@ class HHruInteraction(BaseInteraction):
             print("Ошибка: Некорректный ответ сервера.")
             return []
 
-
     def _get_employers_id(self) -> Any:
         """Метод для получения информации о работодателях"""
         employers_data = []
         self.__url = "https://api.hh.ru/employers"
-        employers_list = ["Альфа-Банк", "Банк ВТБ (ПАО)", "X5 Group", "Газпромбанк", "Mars", "ЯНДЕКС МАРКЕТ", "ВсеИнструменты",
-                          "Умный ритейл", "Tele2", "Lamoda"]
+        employers_list = [
+            "Альфа-Банк",
+            "Банк ВТБ (ПАО)",
+            "X5 Group",
+            "Газпромбанк",
+            "Mars",
+            "ЯНДЕКС МАРКЕТ",
+            "ВсеИнструменты",
+            "Умный ритейл",
+            "Tele2",
+            "Lamoda",
+        ]
 
         for i in employers_list:
             self.__params = {"text": i, "page": 0, "per_page": 1, "locale": "RU"}
             response = self._connect_api()
-            employers_data.append({"name": response["items"][0].get("name", '0'),
-                                   "employer_id": response["items"][0].get("id", '0'),
-                                   "url": response["items"][0].get("url", '0')})
+            employers_data.append(
+                {
+                    "name": response["items"][0].get("name", "0"),
+                    "employer_id": response["items"][0].get("id", "0"),
+                    "url": response["items"][0].get("url", "0"),
+                }
+            )
         return employers_data
-
 
     def _get_data(self, employers_data: list, target: str = "") -> Any:
         """Метод для получения ответа на запрос с API"""
@@ -111,15 +123,8 @@ class HHruInteraction(BaseInteraction):
                         "url": item.get("alternate_url", "hh.ru"),
                         "salary": salary,
                         "requirements": requirements,
-                        "employer_id": item["employer"].get("id")
+                        "employer_id": item["employer"].get("id"),
                     }
 
                     vacancies.append(vacancy)
         self.__vacancies = vacancies
-
-
-# if __name__ == '__main__':
-#     hh = HHruInteraction()
-#     hh.vacancies = hh._get_data(hh._get_employers_id(), "IT")
-#
-#     print(hh.vacancies)

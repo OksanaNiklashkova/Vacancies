@@ -1,11 +1,8 @@
-from mypy.modulefinder import highest_init_level
-
-from src.API_interaction import HHruInteraction
-from src.file_worker import JsonFileWorker
-
 from config import config
-from src.database_utils import create_database, create_table, fill_data
+from src.API_interaction import HHruInteraction
 from src.database_manager import DBManager
+from src.database_utils import create_database, create_table, fill_data
+from src.file_worker import JsonFileWorker
 
 
 def main() -> None:
@@ -16,12 +13,18 @@ def main() -> None:
     while len(target) == 0:
         target = input("Введите слово для поиска: ")
         # например: IT
-        top_employers_check = bool(int(input("""Предлагаем провести поиск среди вакансий от крупнейших работодателей РФ!
+        top_employers_check = bool(
+            int(
+                input(
+                    """Предлагаем провести поиск среди вакансий от крупнейших работодателей РФ!
         Согласны?
         Нажмите
         1 - если да
         0 - если нет
-        => """)))
+        => """
+                )
+            )
+        )
         if top_employers_check:
             employers_data = hh_1._get_employers_id()
         else:
@@ -56,8 +59,14 @@ def main() -> None:
             print(f"Работодатель {item[1]} (ID {item[0]}) предлагает {item[2]} вакансий")
 
         # по запросу пользователя выводим информацию обо всех вакансиях
-        all_vacancies_check = input(bool(int("""Хотите просмотреть весь список вакансий?
-        Нажмите 1 - если да, 0 - если нет =>""")))
+        all_vacancies_check = input(
+            bool(
+                int(
+                    """Хотите просмотреть весь список вакансий?
+        Нажмите 1 - если да, 0 - если нет =>"""
+                )
+            )
+        )
         if all_vacancies_check:
             all_vacancies = db_m.get_all_vacancies()
             for item in all_vacancies:
@@ -68,8 +77,14 @@ def main() -> None:
         print(f"Средняя зарплата в полученной выборке - {avg_salary} руб.")
 
         # по запросу пользователя выводим информацию о вакансиях с зарплатой выше средней по выборке
-        highest_salary_vacancies_check = input(bool(int("""Хотите получить список вакансий с заработной платой выше средней?
-        Нажмите 1 - если да, 0 - если нет =>""")))
+        highest_salary_vacancies_check = input(
+            bool(
+                int(
+                    """Хотите получить список вакансий с заработной платой выше средней?
+        Нажмите 1 - если да, 0 - если нет =>"""
+                )
+            )
+        )
         if highest_salary_vacancies_check:
             highest_salary_vacancies = db_m.get_vacancies_with_higher_salary(avg_salary)
             print("Вакансии с наиболее высокой зарплатой в подборке:")
@@ -77,15 +92,23 @@ def main() -> None:
                 print(f"Работодатель ID {item[5]}: вакансия {item[1]}, зарплата {item[3]} (Подробнее: {item[2]})")
 
         # по запросу пользователя выводим информацию о вакансиях, отобранных по ключевому слову
-        keywords = input("""Введите слово для поиска по наименованиям вакансий:
-        => """)
+        keywords = input(
+            """Введите слово для поиска по наименованиям вакансий:
+        => """
+        )
         searched_vacancies = db_m.get_vacancies_with_keyword(keywords)
         for item in searched_vacancies:
             print(f"Работодатель ID {item[5]}: вакансия {item[1]}, зарплата {item[3]} (Подробнее: {item[2]})")
 
         # запрос о необходимости обновления данных с сайта
-        refresh_check = input(bool(int("""Хотите сделать новый запрос по вакансиям, размещенным на сайте hh.ru?
-        Нажмите 1 - если да, 0 - если нет =>""")))
+        refresh_check = input(
+            bool(
+                int(
+                    """Хотите сделать новый запрос по вакансиям, размещенным на сайте hh.ru?
+        Нажмите 1 - если да, 0 - если нет =>"""
+                )
+            )
+        )
 
         if refresh_check:
             # возвращаемся в начало для формирования нового запроса
@@ -96,6 +119,7 @@ def main() -> None:
                 """Всегда рады помочь Вам в поиске вакансий!
                 До свидания!"""
             )
+
 
 if __name__ == "__main__":
     main()

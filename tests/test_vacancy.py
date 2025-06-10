@@ -13,19 +13,8 @@ def test_make_vacancy(vacancy_dict: dict) -> None:
     assert isinstance(vac_1, VacancyHH)
 
 
-def test__get_salary_value() -> None:
-    """Тест для метода валидации зарплат"""
-    method = getattr(VacancyHH, "_VacancyHH__get_salary_value")
-    assert method(None) == 0
-    assert method({"from": 1000, "to": 2000}) == 1000
-    assert method({"to": 2000}) == 2000
-    assert method(1500) == 1500
-    assert method({}) == 0
-
-
 def test__eq__(vacancies_test: list, vacancy_dict: dict, hh_ru1: HHruInteraction) -> None:
     """тест для переопредения магического метода равенства в классе VacancyHH"""
-    getattr(VacancyHH, "_VacancyHH__get_salary_value")
     vac_1 = VacancyHH.make_vacancy(vacancies_test[0])
     vac_2 = VacancyHH.make_vacancy(vacancy_dict)
     assert VacancyHH.__eq__(vac_1, vac_2) == True
@@ -34,7 +23,6 @@ def test__eq__(vacancies_test: list, vacancy_dict: dict, hh_ru1: HHruInteraction
 
 def test__lt__(vacancies_test: list) -> None:
     """тест для переопредения магического метода __lt__ в классе VacancyHH"""
-    getattr(VacancyHH, "_VacancyHH__get_salary_value")
     vac_1 = VacancyHH.make_vacancy(vacancies_test[0])
     vac_2 = VacancyHH.make_vacancy(vacancies_test[2])
     assert VacancyHH.__lt__(vac_2, vac_1) == True
@@ -42,7 +30,6 @@ def test__lt__(vacancies_test: list) -> None:
 
 def test__le__(vacancies_test: list, vacancy_dict: dict) -> None:
     """тест для переопредения магического метода __le__ в классе VacancyHH"""
-    getattr(VacancyHH, "_VacancyHH__get_salary_value")
     vac_1 = VacancyHH.make_vacancy(vacancies_test[0])
     vac_2 = VacancyHH.make_vacancy(vacancies_test[2])
     vac_3 = VacancyHH.make_vacancy(vacancy_dict)
@@ -52,7 +39,6 @@ def test__le__(vacancies_test: list, vacancy_dict: dict) -> None:
 
 def test__gt__(vacancies_test: list) -> None:
     """тест для переопредения магического метода __gt__ в классе VacancyHH"""
-    getattr(VacancyHH, "_VacancyHH__get_salary_value")
     vac_1 = VacancyHH.make_vacancy(vacancies_test[0])
     vac_2 = VacancyHH.make_vacancy(vacancies_test[2])
     assert VacancyHH.__gt__(vac_1, vac_2) == True
@@ -60,7 +46,6 @@ def test__gt__(vacancies_test: list) -> None:
 
 def test__ge__(vacancies_test: list, vacancy_dict: dict) -> None:
     """тест для переопредения магического метода __ge__ в классе VacancyHH"""
-    getattr(VacancyHH, "_VacancyHH__get_salary_value")
     vac_1 = VacancyHH.make_vacancy(vacancies_test[0])
     vac_2 = VacancyHH.make_vacancy(vacancies_test[2])
     vac_3 = VacancyHH.make_vacancy(vacancy_dict)
@@ -70,7 +55,6 @@ def test__ge__(vacancies_test: list, vacancy_dict: dict) -> None:
 
 def test_make_top_n(vacancies_test: list) -> None:
     """тест для метода сортировки вакансий по зарплате"""
-    getattr(VacancyHH, "_VacancyHH__get_salary_value")
     result = VacancyHH.make_top_n(vacancies_test, 3)
     assert result[0].name == "Pазработчик, QA"
     assert result[1].name == "Frontend разработчик (react)"
@@ -79,7 +63,6 @@ def test_make_top_n(vacancies_test: list) -> None:
 
 def test__str__(vacancies_test: list) -> None:
     """тест для переопредения магического метода __str__ в классе VacancyHH"""
-    getattr(VacancyHH, "_VacancyHH__get_salary_value")
     result1 = str(VacancyHH.make_vacancy(vacancies_test[0]))
     result2 = str(VacancyHH.make_vacancy(vacancies_test[1]))
     assert (

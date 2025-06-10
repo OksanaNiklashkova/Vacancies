@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Union
+
 from src.utils import get_salary_value
+
 
 class Vacancy(ABC):
     __slots__ = ("id", "name", "url", "salary", "requirements", "employer_id")
@@ -13,7 +15,7 @@ class Vacancy(ABC):
         url: str,
         salary: Optional[Union[int, float, Dict[str, Optional[Union[int, float]]]]],
         requirements: Optional[str],
-        employer_id: str
+        employer_id: str,
     ) -> None:  # pragma: no cover
         """Инициализатор для объектов класса Vacancy"""
         pass
@@ -35,7 +37,7 @@ class VacancyHH(Vacancy):
         url: str,
         salary: Optional[Union[int, float, Dict[str, Optional[Union[int, float]]]]],
         requirements: Optional[str],
-        employer_id: str
+        employer_id: str,
     ) -> None:
         """Инициализатор для объектов класса VacancyHH"""
         self.id = id
@@ -54,9 +56,8 @@ class VacancyHH(Vacancy):
             url=item["url"],
             salary=item.get("salary"),
             requirements=item.get("requirements"),
-            employer_id=item.get("employer_id")
+            employer_id=item.get("employer_id", '"'),
         )
-
 
     def __eq__(self, other: object) -> bool:
         """Магический метод для проверки равенства зарплат"""

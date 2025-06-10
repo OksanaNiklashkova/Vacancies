@@ -1,4 +1,5 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Dict, Optional, Union
+
 
 def get_salary_value(salary: Optional[Union[int, float, Dict[str, Optional[Union[int, float]]]]]) -> Union[int, float]:
     """Метод для валидации зарплаты"""
@@ -14,4 +15,3 @@ def get_salary_value(salary: Optional[Union[int, float, Dict[str, Optional[Union
     elif isinstance(salary, (int, float)):
         return salary
     return 0
-
