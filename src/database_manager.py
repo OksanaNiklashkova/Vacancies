@@ -1,16 +1,20 @@
 import psycopg2
+import sys
+from pathlib import Path
+sys.path.append(str(Path(__file__).parent.parent))
 from config import config
 
 class DBManager:
     """класс для работы с базой данных по вакансиям"""
 
-    def __init__(self, dbname: str, params: dict) -> None:
-        self.dbname = dbname
-        self.params = params
-        self.conn = psycopg2.connect(dbname, **params)
+    def __init__(self, db_name: str, params: dict) -> None:
+        self.db_name = db_name
+        self.params = params.copy()
+        self.params['dbname'] = db_name
+        self.conn = psycopg2.connect(**self.params)
 
     def __del__(self) -> None:
-        self.conn.close()
+            self.conn.close()
 
 
     def get_companies_and_vacancies_count(self):
@@ -24,7 +28,7 @@ class DBManager:
                 ORDER BY vacancies_count DESC;
                 """
             )
-        return cur.fetchall()
+            return cur.fetchall()
 
 
     def get_all_vacancies(self):
@@ -37,7 +41,7 @@ class DBManager:
                 LEFT JOIN vacancies ON employers.employer_id = vacancies.employer_id;
                 """
             )
-        return cur.fetchall()
+            return cur.fetchall()
 
 
     def get_avg_salary(self):
@@ -48,8 +52,8 @@ class DBManager:
                 WHERE vacancies.salary <> 0;
                 """
             )
-        avg_salary = cur.fetchall()
-        return round(float(avg_salary[0][0]), 2)
+            avg_salary = cur.fetchall()
+            return round(float(avg_salary[0][0]), 2)
 
 
     def get_vacancies_with_higher_salary(self, avg_salary):
@@ -57,26 +61,19 @@ class DBManager:
         with self.conn.cursor() as cur:
             cur.execute(
                 f"""SELECT * FROM vacancies
-                WHERE vacancies.salary > {avg_salary};
+                WHERE vacancies.salary > {avg_salary}
+                ORDER BY vacancies.salary DESC;
                 """
             )
-        return cur.fetchall()
+            return cur.fetchall()
 
 
     def get_vacancies_with_keyword(self, keywords):
         """получает список всех вакансий, в названии которых содержатся переданные в метод слова"""
         with self.conn.cursor() as cur:
             cur.execute(
-                f"""SELECT * FROM vacancies
-                WHERE vacancies.name LIKE %{keywords.lower()}%;
-                """
+                """SELECT * FROM vacancies
+                WHERE LOWER(vacancies.name) LIKE %s""",
+                (f'%{keywords.lower()}%',)
             )
-        return cur.fetchall()
-
-
-if __name__ == '__main__':
-
-
-    db_m = DBManager()
-    result = db_m.get_companies_and_vacancies_count()
-    print(result)
+            return cur.fetchall()
