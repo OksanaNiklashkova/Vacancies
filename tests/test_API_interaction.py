@@ -26,7 +26,7 @@ def test_connect_api1(mock_get: Any, hh_ru1: HHruInteraction) -> None:
 
     result = hh_ru1._connect_api()
 
-    assert result == [{"id": 1, "name": "Python Dev"}]
+    assert result == {"items": [{"id": 1, "name": "Python Dev"}]}
     mock_get.assert_called_once()
 
 
@@ -72,9 +72,15 @@ def test_connect_api4(mock_get: Any, hh_ru1: HHruInteraction, capsys: pytest.Cap
 
 def test_get_data(hh_ru1: HHruInteraction, vacancies_test: list, target: str = "разработчик") -> None:
     """тест обработки данных, полученных с API"""
-    with patch("src.API_interaction.HHruInteraction._connect_api", return_value=vacancies_test):
-        result = hh_ru1._get_data(target)
-        assert result[0]["name"] == "Pазработчик, QA"
+    with patch(
+        "src.API_interaction.HHruInteraction._connect_api",
+        return_value={"80": {"items": vacancies_test}},
+    ):
+        employers_data = [
+            {"name": "Яндекс", "employer_id": "80"},
+        ]
+        result = hh_ru1._get_data(employers_data, target)
+        assert len(result[0]) == 1
 
 
 def test_vacancies_getter(hh_ru1: HHruInteraction) -> None:
@@ -87,20 +93,28 @@ def test_vacancies_setter(hh_ru1: HHruInteraction) -> None:
     """тест сеттера для приватного атрибута - список вакансий"""
     test_data = [
         {
-            "name": "Python Developer",
-            "alternate_url": "http://example.com",
-            "salary": {"from": 100000, "currency": "RUR"},
-            "snippet": {"requirement": "Желательно <p>опыт работы</p>"},
-        },
-        {
-            "name": "Java Developer",
-            "alternate_url": "http://example.com",
-            "salary": {"from": 90000, "currency": "USD"},
-            "snippet": {"requirement": None},
+            "Яндекс": [
+                {
+                    "id": "1",
+                    "name": "Python Developer",
+                    "alternate_url": "http://example.com",
+                    "salary": {"from": 100000, "currency": "RUR"},
+                    "snippet": {"requirement": "Желательно <p>опыт работы</p>"},
+                    "employer": {"id": "80"},
+                },
+                {
+                    "id": "2",
+                    "name": "Java Developer",
+                    "alternate_url": "http://example.com",
+                    "salary": {"from": 90000, "currency": "USD"},
+                    "snippet": {"requirement": None},
+                    "employer": {"id": "80"},
+                },
+            ]
         },
     ]
     hh_ru1.vacancies = test_data
     assert len(hh_ru1.vacancies) == 1
     assert hh_ru1.vacancies[0]["name"] == "Python Developer"
     assert hh_ru1.vacancies[0]["requirements"] == "Желательно опыт работы"
-    assert hh_ru1.vacancies[0]["salary"]["from"] == 100000  # type: ignore
+    assert hh_ru1.vacancies[0]["salary"] == 100000  # type: ignore
